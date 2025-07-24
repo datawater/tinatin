@@ -1,0 +1,21 @@
+[package]
+name = "tinatin"
+version = "0.1.0"
+edition = "2024"
+
+[profile.dev]
+codegen-units = 2048
+split-debuginfo = "unpacked"
+
+[profile.test]
+debug = true
+
+[profile.release]
+strip = true
+lto = "fat"
+codegen-units = 1
+
+[dependencies]
+aligned = "0.4.2"
+cfg-if = "1.0.1"
+ctor = "0.4.2"
