@@ -3,10 +3,10 @@ mod non_sliding;
 mod precomputed;
 mod sliding;
 
-use crate::types::{Bitboard, Piece, Square, BB};
 use crate::board::Board;
-use precomputed::{BISHOP_MAGICS, ROOK_MAGICS};
+use crate::types::{BB, Bitboard, Piece, Square};
 use non_sliding::NON_SLIDING_ATTACKS;
+use precomputed::{BISHOP_MAGICS, ROOK_MAGICS};
 use sliding::{BISHOP_ATTACKS_TABLE, ROOK_ATTACKS_TABLE};
 
 impl Piece {
@@ -15,11 +15,7 @@ impl Piece {
         let from = from.as_int() as usize;
 
         if self.as_int() == Self::WPawn.as_int() || self.as_int() == Self::BPawn.as_int() {
-            return NON_SLIDING_ATTACKS[if self.as_int() == Self::WPawn.as_int() {
-                0
-            } else {
-                1
-            }][from];
+            return NON_SLIDING_ATTACKS[usize::from(self.as_int() != Self::WPawn.as_int())][from];
         }
 
         let t = unsafe { Self::from_int(self.type_of() as i8) };
@@ -35,7 +31,9 @@ impl Piece {
                 }
                 Piece::WKing => NON_SLIDING_ATTACKS[3][from],
 
-                _ => {panic!("{t:?}")},
+                _ => {
+                    panic!("{t:?}")
+                }
             }
         }
     }
@@ -46,12 +44,16 @@ impl Board {
         let mut bb = BB(0);
 
         for s in 0..64 {
-            let p = self.mailbox[s as usize]; 
+            let p = self.mailbox[s as usize];
             if p == Piece::None || p.color() != self.side_to_move {
                 continue;
             }
 
-            bb = bb | p.attacks(unsafe { Square::from_int(s) }, self.color_bb[0] | self.color_bb[1]);
+            bb = bb
+                | p.attacks(
+                    unsafe { Square::from_int(s) },
+                    self.color_bb[0] | self.color_bb[1],
+                );
         }
 
         bb

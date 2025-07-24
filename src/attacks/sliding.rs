@@ -209,7 +209,7 @@ unsafe fn magic_init() {
             from_int,
             BISHOP_MAGICS,
             false
-        )
+        );
     };
     #[allow(unused_unsafe)]
     unsafe {
@@ -219,6 +219,6 @@ unsafe fn magic_init() {
             from_int,
             ROOK_MAGICS,
             true
-        )
+        );
     };
 }

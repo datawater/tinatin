@@ -17,8 +17,7 @@ mod utils;
 use std::str::FromStr;
 
 fn main() {
-    let board =
-        board::Board::from_str("R2BK3/p4pp1/2p5/4Q3/1N3p1p/7p/1pp3P1/8 w - - 0 1").unwrap();
+    let board = board::Board::from_str("R2BK3/p4pp1/2p5/4Q3/1N3p1p/7p/1pp3P1/8 w - - 0 1").unwrap();
 
     let attacks = board.get_attacks();
 
