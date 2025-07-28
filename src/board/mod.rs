@@ -14,6 +14,7 @@ pub(crate) struct BoardState {
     pub(crate) rule_50: u8,
     pub(crate) ep_square: Square,
 
+    pub(crate) attacks: [Bitboard; 2],
     pub(crate) checkers: Bitboard,
     pub(crate) previous: Option<Box<Self>>,
     pub(crate) king_blockers: [Bitboard; 2],
@@ -151,9 +152,9 @@ impl FromStr for Board {
                         u32::from(Square::from_rank_file(rank as u8 - 1, file as u8 - 1).as_int());
 
                     self_.mailbox[rank * 8 + file - 9] = piece;
-                    self_.piece_bb[piece.as_index()].0 |= 1 << square;
+                    self_.piece_bb[piece.to_index()].0 |= 1 << square;
                     self_.color_bb[usize::from(piece.color().0)].0 |= 1 << square;
-                    self_.piece_count[piece.as_index()] += 1;
+                    self_.piece_count[piece.to_index()] += 1;
                     file += 1;
                 }
 

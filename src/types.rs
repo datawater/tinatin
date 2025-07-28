@@ -53,12 +53,16 @@ enum_i8! {
         WRook,
         WQueen,
         WKing,
+        Woo,
+        Wooo,
         BPawn = -(Self::WPawn as i8),
         BKnight = -(Self::WKnight as i8),
         BBishop = -(Self::WBishop as i8),
         BRook = -(Self::WRook as i8),
         BQueen = -(Self::WQueen as i8),
         BKing = -(Self::WKing as i8),
+        Boo = -(Self::Woo as i8),
+        Booo = -(Self::Wooo as i8),
         #[default]
         None = 0,
     }
@@ -170,7 +174,7 @@ impl Piece {
             Self::BQueen => 'q',
             Self::BKing => 'k',
 
-            Self::None => ' ',
+            _ => ' ',
         }
     }
 
@@ -178,14 +182,49 @@ impl Piece {
         self.as_int().unsigned_abs()
     }
 
+    pub const fn type_of_to_piece(self) -> Self {
+        unsafe { Self::from_int(self.type_of() as i8) }
+    }
+
     pub const fn color(self) -> Color {
         Color(self.as_int().is_negative())
     }
 
-    pub(crate) const fn as_index(self) -> usize {
-        let x = self.as_int() as isize;
-        (x.abs() - 1 + (x.is_negative() as isize) * Self::WKing as isize) as usize
+    pub(crate) const fn to_index(self) -> usize {
+        match self {
+            Piece::Woo => 12,
+            Piece::Wooo => 13,
+            Piece::Boo => 14,
+            Piece::Booo => 15,
+
+            _ => {
+                let x = self.as_int() as isize;
+                (x.abs() - 1 + (x.is_negative() as isize) * Self::WKing as isize) as usize
+            }
+        }
     }
+
+    pub(crate) const fn from_index(x: usize) -> Self {
+        match x {
+            12 => Piece::Woo,
+            13 => Piece::Wooo,
+            14 => Piece::Boo,
+            15 => Piece::Booo,
+
+            _ => {
+                let wk = Self::WKing as usize - 1;
+                unsafe {
+                    Self::from_int(if x > wk {
+                        -((x - wk) as i8)
+                    } else {
+                        x as i8 + 1
+                    })
+                }
+            }
+        }
+    }
+
+    // pub const fn is_sliding(self) -> bool {}
 }
 
 impl Not for Color {
@@ -254,6 +293,19 @@ impl Square {
             None => 255,
         }
     }
+
+    pub unsafe fn unsafe_from_str(s: &str) -> Self {
+        let s = s.to_ascii_lowercase();
+        let s = s.as_bytes();
+
+        Self::from_rank_file(s[1] - b'1', s[0] - b'a')
+    }
+}
+
+impl Display for Square {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", format!("{self:?}").to_lowercase())
+    }
 }
 
 impl FromStr for Square {
@@ -272,15 +324,6 @@ impl FromStr for Square {
         }
 
         unsafe { Ok(Self::unsafe_from_str(str)) }
-    }
-}
-
-impl Square {
-    pub unsafe fn unsafe_from_str(s: &str) -> Self {
-        let s = s.to_ascii_lowercase();
-        let s = s.as_bytes();
-
-        Self::from_rank_file(s[1] - b'1', s[0] - b'a')
     }
 }
 
@@ -319,6 +362,23 @@ impl BitXor for Bitboard {
 
     fn bitxor(self, rhs: Self) -> Self::Output {
         Self(self.0 ^ rhs.0)
+    }
+}
+
+impl Direction {
+    pub const fn inverse(self) -> Self {
+        unsafe { Self::from_int(-self.as_int()) }
+    }
+
+    pub const fn is_increasing(self) -> bool {
+        matches!(
+            self,
+            Self::East | Self::North | Self::NorthNorth | Self::NorthEast | Self::NorthWest
+        )
+    }
+
+    pub const fn is_decreasing(self) -> bool {
+        !self.is_increasing()
     }
 }
 

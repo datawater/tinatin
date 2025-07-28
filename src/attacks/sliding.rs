@@ -27,7 +27,11 @@ macro_rules! sliding_ {
     };
 }
 
-const fn sliding_attacks(from: Square, occupied: Bitboard, direction: Direction) -> Bitboard {
+pub(super) const fn sliding_attacks(
+    from: Square,
+    occupied: Bitboard,
+    direction: Direction,
+) -> Bitboard {
     const fn and_collision(a: Bitboard, b: Bitboard) -> bool {
         a.0 & b.0 != 0
     }
@@ -62,7 +66,7 @@ const fn blockers_size(x: u64) -> usize {
 }
 
 // Basically stolen from integral by aronpetko. modified to fit into const though
-struct BlockingSet<const B: u64>();
+struct BlockingSet<const MOVES: u64>();
 impl<const MOVES: u64> BlockingSet<MOVES> {
     pub const SET: [Bitboard; blockers_size(MOVES)] = {
         let mut set_bits = [0u8; const_popcnt(MOVES)];
