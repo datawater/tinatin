@@ -18,3 +18,7 @@ codegen-units = 1
 [dependencies]
 cfg-if = "1.0.1"
 ctor = "0.4.2"
+smallvec = { version = "1.15.1", features = ["const_generics", "const_new", "union"] }
+
+[features]
+const_sliding_attacks = []

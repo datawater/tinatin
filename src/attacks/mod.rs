@@ -26,10 +26,11 @@ impl Piece {
                 Piece::WKnight => NON_SLIDING_ATTACKS[2][from],
                 Piece::WBishop => BISHOP_ATTACKS_TABLE[from][BISHOP_MAGICS[from].index(occupied)],
                 Piece::WRook => ROOK_ATTACKS_TABLE[from][ROOK_MAGICS[from].index(occupied)],
-                Piece::WQueen => {
-                    BB(BISHOP_ATTACKS_TABLE[from][BISHOP_MAGICS[from].index(occupied)].0
-                        | ROOK_ATTACKS_TABLE[from][ROOK_MAGICS[from].index(occupied)].0)
-                }
+                Piece::WQueen => BB(BISHOP_ATTACKS_TABLE[from]
+                    [BISHOP_MAGICS[from].index(occupied)]
+                .0 | ROOK_ATTACKS_TABLE[from]
+                    [ROOK_MAGICS[from].index(occupied)]
+                .0),
                 Piece::WKing => NON_SLIDING_ATTACKS[3][from],
 
                 _ => {
@@ -79,17 +80,20 @@ impl Board {
                 .to_index()];
 
                 let mut index = 6 * (Color::WHITE.0 != side.0) as usize;
-                while index < if side.0 == Color::WHITE.0 {6} else {12} {
+                let mut check_count = 0;
+                while index < if side.0 == Color::WHITE.0 { 6 } else { 12 } {
                     let mut piece = self.piece_bb[index];
                     while piece.0 != BB(0).0 {
                         let square = unsafe { Square::from_int(piece.0.trailing_zeros() as u8) };
                         let attacks = Piece::from_index(index)
                             .attacks(square, BB(self.color_bb[0].0 | self.color_bb[1].0));
 
-                        if king.0 & attacks.0 != 0
+                        if check_count < 3
+                            && king.0 & attacks.0 != 0
                             && piece.0 & self.color_bb[side.0 as usize].0 != 0
                         {
                             self.state.checkers.0 |= square.to_bitboard().0;
+                            check_count += 1;
                         }
 
                         bb.0 |= attacks.0;
@@ -181,7 +185,7 @@ impl Board {
         }
     }
 
-    pub fn populate_state(&mut self) {
+    pub(crate) fn populate_state(&mut self) {
         self.populate_attacks();
         self.populate_pinners_and_blockers();
     }

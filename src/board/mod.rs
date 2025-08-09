@@ -184,6 +184,7 @@ impl FromStr for Board {
             i += 1;
         }
 
+        self_.populate_state();
         Ok(self_)
     }
 }
@@ -195,7 +196,7 @@ impl Board {
         #[allow(clippy::enum_glob_use)]
         use crate::types::{BB, Piece::*};
 
-        Board {
+        let mut x = Board {
             mailbox: [
                 WRook, WKnight, WBishop, WQueen, WKing, WBishop, WKnight, WRook, WPawn, WPawn,
                 WPawn, WPawn, WPawn, WPawn, WPawn, WPawn, None, None, None, None, None, None, None,
@@ -222,7 +223,10 @@ impl Board {
             piece_count: [8, 2, 2, 2, 1, 1, 8, 2, 2, 2, 1, 1],
             side_to_move: Color::WHITE,
             state: Box::new(BoardState::new_starting()),
-        }
+        };
+
+        x.populate_state();
+        x
     }
 
     #[inline]

@@ -181,7 +181,7 @@ macro_rules! populate_array_64 {
     }};
 }
 
-#[cfg(not(debug_assertions))]
+#[cfg(feature = "const_sliding_attacks")]
 pub(super) static BISHOP_ATTACKS_TABLE: [[Bitboard; 512]; 64] = {
     let mut table = [[BB(0); 512]; 64];
     populate_array_64!(generate_attacks, table, from_int, BISHOP_MAGICS, false);
@@ -189,7 +189,7 @@ pub(super) static BISHOP_ATTACKS_TABLE: [[Bitboard; 512]; 64] = {
     table
 };
 
-#[cfg(not(debug_assertions))]
+#[cfg(feature = "const_sliding_attacks")]
 pub(super) static ROOK_ATTACKS_TABLE: [[Bitboard; 4096]; 64] = {
     let mut table = [[BB(0); 4096]; 64];
     populate_array_64!(generate_attacks, table, from_int, ROOK_MAGICS, true);
@@ -197,12 +197,13 @@ pub(super) static ROOK_ATTACKS_TABLE: [[Bitboard; 4096]; 64] = {
     table
 };
 
-#[cfg(debug_assertions)]
+// TODO: Switch to fancy magic bitboards
+#[cfg(not(feature = "const_sliding_attacks"))]
 pub(super) static mut BISHOP_ATTACKS_TABLE: [[Bitboard; 512]; 64] = [[BB(0); 512]; 64];
-#[cfg(debug_assertions)]
+#[cfg(not(feature = "const_sliding_attacks"))]
 pub(super) static mut ROOK_ATTACKS_TABLE: [[Bitboard; 4096]; 64] = [[BB(0); 4096]; 64];
 
-#[cfg(debug_assertions)]
+#[cfg(not(feature = "const_sliding_attacks"))]
 #[ctor::ctor]
 unsafe fn magic_init() {
     #[allow(unused_unsafe)]

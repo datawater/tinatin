@@ -10,7 +10,7 @@
 #![feature(generic_const_exprs, generic_const_items, test)]
 mod attacks;
 mod board;
-mod moves;
+mod movegen;
 mod tables;
 mod types;
 mod utils;
